@@ -7,10 +7,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping(value="/url")
 @Api(value="API Url Encurta")
 public class UrlController
 {
@@ -21,7 +26,7 @@ public class UrlController
     @ApiOperation(value="Gerador de link encurtado")
     public UrlDTO generateShortLink(@RequestBody UrlDTO urlDto)
     {
-        Url urlToReturn = urlService.createLink(urlDto);
+        Url urlToReturn = urlService.createShortLink(urlDto);
         if(urlToReturn != null)
         {
             UrlDTO urlDtoSet = new UrlDTO();
@@ -30,21 +35,23 @@ public class UrlController
             return urlDto;
         }
         return new UrlDTO();
-
     }
 
     @GetMapping ("/{shortLink}")
     @ApiOperation(value="Redireciona para o link encurtado")
-    public UrlDTO redirectToOriginalUrl(@PathVariable String shortLink){
 
+    public ResponseEntity<?> redirectToOriginalUrl(@PathVariable String shortLink, HttpServletResponse response) throws IOException {
         if(StringUtils.isEmpty(shortLink))
         {
-            return new UrlDTO();
+            UrlDTO urlDto = new UrlDTO();
+            return new ResponseEntity<UrlDTO>(urlDto, HttpStatus.OK);
         }
-        Url urlToReturn = urlService.getLink(shortLink);
+        Url urlToReturn = urlService.getShortLink(shortLink);
         if(urlToReturn == null) {
-            return new UrlDTO();
+            UrlDTO urlDto = new UrlDTO();
+            return new ResponseEntity<UrlDTO>(urlDto, HttpStatus.OK);
         }
+        response.sendRedirect(urlToReturn.getOriginalUrl());
         return null;
     }
 }

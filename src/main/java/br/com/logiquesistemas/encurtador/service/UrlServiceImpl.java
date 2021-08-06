@@ -18,15 +18,14 @@ public class UrlServiceImpl implements UrlService{
 
 
     @Override
-    public Url createLink(UrlDTO urlDto) {
-
+    public Url createShortLink(UrlDTO urlDto) {
         if(StringUtils.isNotEmpty(urlDto.getUrl()))
         {
             String encodedUrl = encodeUrl(urlDto.getUrl());
             Url urlPersist = new Url();
             urlPersist.setOriginalUrl(urlDto.getUrl());
             urlPersist.setShortLink(encodedUrl);
-            return persistLink(urlPersist);
+            return persistShortLink(urlPersist);
         }
         return null;
     }
@@ -43,17 +42,17 @@ public class UrlServiceImpl implements UrlService{
     }
 
     @Override
-    public Url persistLink(Url url) {
+    public Url persistShortLink(Url url) {
         return urlRepository.save(url);
     }
 
     @Override
-    public Url getLink(String url) {
+    public Url getShortLink(String url) {
         return urlRepository.findByShortLink(url);
     }
 
     @Override
-    public void deleteLink(Url url) {
+    public void deleteShortLink(Url url) {
         urlRepository.delete(url);
     }
 
